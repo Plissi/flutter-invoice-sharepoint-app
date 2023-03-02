@@ -70,7 +70,8 @@ class InvoiceFormState extends State<InvoiceForm> {
               child: ElevatedButton(
                 child: const Text(importButton),
                 onPressed: () {},
-              )),
+              )
+          ),
           Container(
               height: 50,
               padding: const EdgeInsets.fromLTRB(10, 10, 10, 0),

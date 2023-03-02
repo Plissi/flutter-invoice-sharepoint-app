@@ -4,7 +4,9 @@ class Environment{
   static String get apiScheme => dotenv.get('API_SCHEME', fallback: 'http');
   static String get apiHost => dotenv.get('API_HOST', fallback: '10.0.2.2');
   static int get apiPort => int.parse(dotenv.get('API_PORT', fallback: '1024'));
-  static String get apiEndpoint => dotenv.get('API_ENDPOINT', fallback: '/api');
+  static String get apiEndpoint1 => dotenv.get('API_ENDPOINT', fallback: '/api1');
+  static String get apiEndpoint2 => dotenv.get('API_ENDPOINT2', fallback: '/api2');
 
-  static Uri uri = Uri(scheme: apiScheme, host: apiHost, port: apiPort, path: apiEndpoint);
+  static Uri uri1 = Uri(scheme: apiScheme, host: apiHost, port: apiPort, path: apiEndpoint1);
+  static Uri uri2 = Uri(scheme: apiScheme, host: apiHost, port: apiPort, path: apiEndpoint2);
 }
