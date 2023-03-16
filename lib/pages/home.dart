@@ -1,8 +1,5 @@
-import 'dart:io';
-
 import 'package:flutter/material.dart';
 import 'package:transmission_facture_client/models/Invoice.dart';
-import 'package:transmission_facture_client/pages/update.dart';
 import 'package:transmission_facture_client/partials/datatable_part1.dart';
 import 'package:transmission_facture_client/partials/datatable_part2.dart';
 
@@ -21,56 +18,49 @@ class Home extends StatelessWidget {
         primarySwatch: Colors.indigo,
       ),
       home: Scaffold(
-        appBar: AppBar(
-          title: const Text(appTitle),
-          leading: IconButton(
-            onPressed: () {
-              Navigator.pop(context);
-            },
-            icon: const Icon(Icons.arrow_back),
-          ),
-        ),
-        body: DefaultTabController(
-          length: 2,
-          child: Center(
-            child: Padding(
-              padding: EdgeInsets.all(16.0),
-              child: Scaffold(
-                  appBar: AppBar(
-                    bottom: TabBar(
-                      tabs: [
-                        Tab(
-                            child: Center(
-                              child: Text(
-                                title1,
-                                style: const TextStyle(
-                                    fontWeight: FontWeight.bold, fontSize: 32),
-                              ),
-                            )
-                        ),
-                        Tab(
-                            child: Center(
-                              child: Text(
-                                title2,
-                                style: const TextStyle(
-                                    fontWeight: FontWeight.bold, fontSize: 32),
-                              ),
-                            )
-                        ),
-                      ],
-                    ),
-                  ),
-                  body: TabBarView(
-                    children: [
-                      DataTablePart1(),
-                      DataTablePart2()
-                    ],
-                  )
-              ),
+          appBar: AppBar(
+            title: const Text(appTitle),
+            leading: IconButton(
+              onPressed: () {
+                Navigator.pop(context);
+              },
+              icon: const Icon(Icons.arrow_back),
             ),
           ),
-        )
-      ),
+          body: DefaultTabController(
+            length: 2,
+            child: Center(
+              child: Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Scaffold(
+                    appBar: AppBar(
+                      bottom: TabBar(
+                        tabs: [
+                          Tab(
+                              child: Center(
+                            child: Text(
+                              title1,
+                              style: const TextStyle(
+                                  fontWeight: FontWeight.bold, fontSize: 32),
+                            ),
+                          )),
+                          Tab(
+                              child: Center(
+                            child: Text(
+                              title2,
+                              style: const TextStyle(
+                                  fontWeight: FontWeight.bold, fontSize: 32),
+                            ),
+                          )),
+                        ],
+                      ),
+                    ),
+                    body: const TabBarView(
+                      children: [DataTablePart1(), DataTablePart2()],
+                    )),
+              ),
+            ),
+          )),
     );
   }
 }

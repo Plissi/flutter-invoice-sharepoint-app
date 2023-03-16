@@ -29,25 +29,6 @@ class Invoice {
 
 enum Status { Oui, Non }
 
-/*
-Future<Invoice> sendItem(String name, bool isComplete) async {
-  Uri uri = Environment.uri;
-  final http.Response response = await http.post(
-    uri,
-    headers: <String, String>{
-      'Content-Type': 'application/json; charset=UTF-8',
-    },
-    body: jsonEncode({'name': name, 'isComplete': isComplete}),
-  );
-
-  if (response.statusCode == 201) {
-    return Invoice.fromJson(json.decode(response.body));
-  } else {
-    throw Exception('Failed to load album');
-  }
-}
-*/
-
 Future<List<Invoice>> fetchInvoices() async {
   Uri uri = Environment.uri1;
   final response = await http.get(uri);

@@ -6,7 +6,10 @@ class Environment{
   static int get apiPort => int.parse(dotenv.get('API_PORT', fallback: '1024'));
   static String get apiEndpoint1 => dotenv.get('API_ENDPOINT', fallback: '/api1');
   static String get apiEndpoint2 => dotenv.get('API_ENDPOINT2', fallback: '/api2');
+  static String get loginEndpoint => dotenv.get('API_ENDPOINT_USER', fallback: '/api');
 
   static Uri uri1 = Uri(scheme: apiScheme, host: apiHost, port: apiPort, path: apiEndpoint1);
   static Uri uri2 = Uri(scheme: apiScheme, host: apiHost, port: apiPort, path: apiEndpoint2);
+  static Uri uriLogin = Uri(scheme: apiScheme, host: apiHost, port: apiPort, path: loginEndpoint);
+
 }

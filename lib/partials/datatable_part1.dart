@@ -1,8 +1,8 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:transmission_facture_client/models/Invoice.dart';
-import 'package:transmission_facture_client/pages/update.dart';
 
 class DataTablePart1 extends StatefulWidget {
   const DataTablePart1({Key? key}) : super(key: key);
@@ -12,7 +12,8 @@ class DataTablePart1 extends StatefulWidget {
 }
 
 class _DataTablePartState extends State<DataTablePart1> {
-  //List<Invoice> _invoices = <Invoice>[];
+  /// Variables
+  late File imageFile;
   late Future<List<Invoice>> _invoices;
 
   final controller = ScrollController();
@@ -41,15 +42,10 @@ class _DataTablePartState extends State<DataTablePart1> {
 
   @override
   Widget build(BuildContext context) {
-    //List<Invoice> data = _invoices;
-    //Future<List<Invoice>> data = _invoices;
-
     TextEditingController controller = TextEditingController();
     String _searchResult = '';
 
-    String title1 = 'Décharges en cours';
-    String title2 = 'Décharges effectuées';
-
+    //DataTable headers
     List<String> cols = [
       "ID",
       "Code Client",
@@ -60,196 +56,7 @@ class _DataTablePartState extends State<DataTablePart1> {
       "Statut",
       "Actions"
     ];
-    /*return Scaffold(
-        body: Center(
-          child:Expanded(
-            child: SingleChildScrollView(
-                scrollDirection: Axis.vertical,
-                child: Column(
-                  children: [
-                    Center(
-                      child: Text(
-                        title,
-                        style: const TextStyle(
-                            fontWeight: FontWeight.bold,
-                            fontSize: 32
-                        ),
-                      ),
-                    ),
-                    Padding(
-                        padding: const EdgeInsets.all(10),
-                        child: Center(
-                          child: SingleChildScrollView(
-                            scrollDirection: Axis.horizontal,
-                            child: DataTable(
-                                columns: [
-                                  DataColumn(
-                                      label: Text(
-                                        cols[0],
-                                        style: const TextStyle(
-                                          fontWeight: FontWeight.bold,
-                                        ),
-                                      )
-                                  ),
-                                  DataColumn(
-                                      label: Text(
-                                        cols[1],
-                                        style: const TextStyle(
-                                          fontWeight: FontWeight.bold,
-                                        ),
-                                      )
-                                  ),
-                                  DataColumn(
-                                      label: Text(
-                                        cols[2],
-                                        style: const TextStyle(
-                                          fontWeight: FontWeight.bold,
-                                        ),
-                                      )
-                                  ),
-                                  DataColumn(
-                                      label: Text(
-                                        cols[3],
-                                        style: const TextStyle(
-                                          fontWeight: FontWeight.bold,
-                                        ),
-                                      )
-                                  ),
-                                  DataColumn(
-                                      label: Text(
-                                        cols[4],
-                                        style: const TextStyle(
-                                          fontWeight: FontWeight.bold,
-                                        ),
-                                      )
-                                  ),
-                                  DataColumn(
-                                      label: Text(
-                                        cols[5],
-                                        style: const TextStyle(
-                                          fontWeight: FontWeight.bold,
-                                        ),
-                                      )
-                                  ),
-                                  DataColumn(
-                                      label: Text(
-                                        cols[6],
-                                        style: const TextStyle(
-                                          fontWeight: FontWeight.bold,
-                                        ),
-                                      )
-                                  ),
-                                  DataColumn(
-                                      label: Text(
-                                        cols[7],
-                                        style: const TextStyle(
-                                          fontWeight: FontWeight.bold,
-                                        ),
-                                      )
-                                  ),
-                                ],
-                                rows: data.map((invoice) => DataRow(
-                                    cells: [
-                                      DataCell(
-                                          Container(
-                                            child: Text(
-                                              invoice.id.toString(),
-                                              style: const TextStyle(
-                                                  fontWeight: FontWeight.bold
-                                              ),
-                                            ),
-                                          )
-                                      ),
-                                      DataCell(
-                                          Container(
-                                            child: Text(
-                                              invoice.customerCode.toString(),
-                                              style: const TextStyle(
 
-                                              ),
-                                            ),
-                                          )
-                                      ),
-                                      DataCell(
-                                          Container(
-                                            child: Text(
-                                              invoice.customerName.toString(),
-                                              style: const TextStyle(
-
-                                              ),
-                                            ),
-                                          )
-                                      ),
-                                      DataCell(
-                                          Container(
-                                            child: Text(
-                                              invoice.date.toString(),
-                                              style: const TextStyle(
-
-                                              ),
-                                            ),
-                                          )
-                                      ),
-                                      DataCell(
-                                          Container(
-                                            child: Text(
-                                              invoice.amount.toString(),
-                                              style: const TextStyle(
-
-                                              ),
-                                            ),
-                                          )
-                                      ),
-                                      DataCell(
-                                          Container(
-                                            width: 50,
-                                            child: Text(
-                                              invoice.invoiceCount.toString(),
-                                              style: const TextStyle(
-
-                                              ),
-                                            ),
-                                          )
-                                      ),
-                                      DataCell(
-                                          Container(
-                                            child: Text(
-                                              invoice.status.toString().split('.').last,
-                                              style: const TextStyle(
-
-                                              ),
-                                            ),
-                                          )
-                                      ),
-                                      DataCell(
-                                          Container(
-                                              alignment: Alignment.center,
-                                              child: ElevatedButton(
-                                                onPressed: () {
-                                                  Navigator.push(
-                                                    context,
-                                                    MaterialPageRoute(builder: (context) {
-                                                      return const InvoicePage();
-                                                    }),
-                                                  );
-                                                },
-                                                child: const Icon(Icons.camera_alt),
-                                              )
-                                          )
-                                      ),
-                                    ])
-                                ).toList()
-                            ),
-                          ),
-                        )
-                    )
-                  ],
-                )
-            ),
-          ),
-
-        )
-    );*/
     return FutureBuilder<List<Invoice>>(
         future: _invoices,
         builder: (ctx, snap) {
@@ -429,14 +236,15 @@ class _DataTablePartState extends State<DataTablePart1> {
                                                   Alignment.center,
                                                   child: ElevatedButton(
                                                     onPressed: () {
-                                                      Navigator.push(
+                                                      /*Navigator.push(
                                                         context,
                                                         MaterialPageRoute(
                                                             builder:
                                                                 (context) {
                                                               return const InvoicePage();
                                                             }),
-                                                      );
+                                                      );*/
+                                                      _getFromCamera();
                                                     },
                                                     child: const Icon(
                                                         Icons
@@ -495,4 +303,19 @@ class _DataTablePartState extends State<DataTablePart1> {
           );
         });
   }
+
+  /// Get from Camera
+  _getFromCamera() async {
+    PickedFile? pickedFile = await ImagePicker().getImage(
+      source: ImageSource.camera,
+      maxWidth: 1800,
+      maxHeight: 1800,
+    );
+    if (pickedFile != null) {
+      setState(() {
+        imageFile = File(pickedFile.path);
+      });
+    }
+  }
 }
+
