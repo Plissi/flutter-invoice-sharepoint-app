@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:transmission_facture_client/models/Invoice.dart';
-import 'package:transmission_facture_client/partials/datatable_part1.dart';
-import 'package:transmission_facture_client/partials/datatable_part2.dart';
+import 'package:transmission_facture_client/partials/invoice_datatable_part.dart';
+
+import '../environment.dart';
 
 class Home extends StatelessWidget {
   const Home({Key? key}) : super(key: key);
@@ -34,7 +35,7 @@ class Home extends StatelessWidget {
                 padding: const EdgeInsets.all(16.0),
                 child: Scaffold(
                     appBar: AppBar(
-                      bottom: TabBar(
+                      title: TabBar(
                         tabs: [
                           Tab(
                               child: Center(
@@ -55,8 +56,8 @@ class Home extends StatelessWidget {
                         ],
                       ),
                     ),
-                    body: const TabBarView(
-                      children: [DataTablePart1(), DataTablePart2()],
+                    body: TabBarView(
+                      children: [InvoiceDataTablePart(uri: Environment.uri1, received: false), InvoiceDataTablePart(uri: Environment.uri2, received: true)],
                     )),
               ),
             ),

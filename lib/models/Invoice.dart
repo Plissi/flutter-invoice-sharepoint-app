@@ -29,8 +29,7 @@ class Invoice {
 
 enum Status { Oui, Non }
 
-Future<List<Invoice>> fetchInvoices() async {
-  Uri uri = Environment.uri1;
+Future<List<Invoice>> fetchInvoices(uri) async {
   final response = await http.get(uri);
 
   if (response.statusCode == 200) {
@@ -38,22 +37,6 @@ Future<List<Invoice>> fetchInvoices() async {
     List jsonResponse = parsed["results"] as List;
     String next = parsed["__next"];
     print(next);
-
-    return jsonResponse.map((job) => Invoice.fromJson(job)).toList();
-  } else {
-    print('Error, Could not load Data.');
-    throw Exception('Failed to load Data');
-  }
-}
-
-Future<List<Invoice>> fetchDeliveredInvoices() async {
-  Uri uri = Environment.uri2;
-  final response = await http.get(uri);
-
-  if (response.statusCode == 200) {
-    var parsed = json.decode(response.body);
-    //print(parsed[0]);
-    List jsonResponse = parsed["results"] as List;
 
     return jsonResponse.map((job) => Invoice.fromJson(job)).toList();
   } else {
