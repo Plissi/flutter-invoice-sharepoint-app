@@ -1,6 +1,8 @@
+import 'dart:async';
 import 'dart:convert';
 
 import 'package:http/http.dart' as http;
+import 'package:memory_cache/memory_cache.dart';
 import 'package:transmission_facture_client/environment.dart';
 
 class User {
@@ -14,19 +16,42 @@ class User {
   }
 }
 
-Future<http.Response> login(User user) async{
+Future<Map<String, Object?>> login(User user) async{
   Uri uri = Environment.uriLogin;
+print(uri);
+print(user);
+  try{
+    final response = await http.post(
+      uri,
+      headers: <String, String> {
+        'Content-Type': 'application/json; charset=UTF-8',
+      },
+      body: jsonEncode({
+        'username': user.username,
+        'password': user.password
+      }),
+    ).timeout(const Duration(seconds: 90));
 
-  final response = await http.post(
-    uri,
-    headers: <String, String> {
-      'Content-Type': 'application/json; charset=UTF-8',
-    },
-    body: jsonEncode({
-      'username': user.username,
-      'password': user.password
-    }),
-  );
+    if (response.statusCode == 200) {
+      var parsed = json.decode(response.body);
+      MemoryCache.instance.create(
+          "token", parsed["token"]);
+      MemoryCache.instance.create(
+          "expiration", parsed["expiration"]);
+      return {
+        'ok' : true
+      };
+    }else{
+      return {
+        'ok' : false,
+        'error': "Nom d'utilisateur et/ou mot de passe incorrect"
+      };
+    }
+  } on TimeoutException catch(e){
+    return {
+      'ok' : false,
+      'error': e.message
+    };
+  }
 
-  return response;
 }

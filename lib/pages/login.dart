@@ -1,5 +1,8 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:http/http.dart';
+import 'package:memory_cache/memory_cache.dart';
 import 'package:transmission_facture_client/models/User.dart';
 import 'package:transmission_facture_client/pages/home.dart';
 
@@ -30,7 +33,6 @@ class LoginState extends State<Login> {
     const buttonText = "Connexion";
     const validationMessage = "Champ obligatoire";
     const processingMessage = "Connexion en cours";
-    const errorMessage = "Nom d'utilisateur et/ou mot de passe incorrect";
     const successMessage = "Connexion réussie";
     const hintLogin = "Nom d'utilisateur";
     const hintPass = "Mot de passe";
@@ -111,9 +113,9 @@ class LoginState extends State<Login> {
                               content: Text(processingMessage)
                           ),
                         );
-                        Response response =  await login(user);
-                        if (response.statusCode == 200) {
-                           response.body;
+                        var response =  await login(user);
+                        //print(MemoryCache.instance.contains("token") == true && DateTime.now().isBefore(DateTime.parse(MemoryCache.instance.read("expiration"))) == true);
+                        if (response["ok"] == true) {
                            ScaffoldMessenger.of(context).showSnackBar(
                              const SnackBar(
                                  backgroundColor: Color.fromRGBO(5, 242, 5, 0.8),
@@ -128,9 +130,9 @@ class LoginState extends State<Login> {
                            );
                         }else{
                           ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(
-                              backgroundColor: Color.fromRGBO(242, 5, 5, 0.8),
-                              content: Text(errorMessage)
+                            SnackBar(
+                              backgroundColor: const Color.fromRGBO(242, 5, 5, 0.8),
+                              content: Text(response["error"].toString())
                             ),
                           );
                         }

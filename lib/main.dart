@@ -2,6 +2,8 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:memory_cache/memory_cache.dart';
+import 'package:transmission_facture_client/pages/home.dart';
 import 'package:transmission_facture_client/pages/login.dart';
 
 Future<void> main() async {
@@ -26,10 +28,12 @@ class MyApp extends StatelessWidget {
         appBar: AppBar(
           title: const Text(appTitle),
         ),
-        body: const Center(
+        body: Center(
           child: Padding(
-            padding: EdgeInsets.all(16.0),
-            child: Login(),
+            padding: const EdgeInsets.all(16.0),
+            child:(MemoryCache.instance.contains("token") == true && DateTime.now().isBefore(DateTime.parse(MemoryCache.instance.read("expiration"))) == true)
+                ?const Home()
+                :const Login()
           ),
         ),
       ),

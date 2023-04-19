@@ -10,12 +10,21 @@ class Environment{
   static String get loginEndpoint => dotenv.get('API_ENDPOINT_USER', fallback: '/api');
   static String get uploadEndpoint => dotenv.get('API_ENDPOINT_UPLOAD_IMAGE', fallback: '/api');
   static String get digestEndpoint => dotenv.get('API_ENDPOINT_DIGEST', fallback: '/api');
+  static String get searchEndpoint => dotenv.get('API_ENDPOINT_SEARCH', fallback: '/api');
 
+  /*
+  //Local
   static Uri uri1 = Uri(scheme: apiScheme, host: apiHost, port: apiPort, path: apiEndpoint1);
   static Uri uri2 = Uri(scheme: apiScheme, host: apiHost, port: apiPort, path: apiEndpoint2);
   static Uri uriLogin = Uri(scheme: apiScheme, host: apiHost, port: apiPort, path: loginEndpoint);
-  static Uri uriUploadImage = Uri(scheme: apiScheme, host: apiHost, port: apiPort, path: uploadEndpoint);
   static Uri uriDigest = Uri(scheme: apiScheme, host: apiHost, port: apiPort, path: digestEndpoint);
+  */
+
+  //Online
+  static Uri uri1 = Uri(scheme: apiScheme, host: apiHost, path: apiEndpoint1);
+  static Uri uri2 = Uri(scheme: apiScheme, host: apiHost, path: apiEndpoint2);
+  static Uri uriLogin = Uri(scheme: apiScheme, host: apiHost, path: loginEndpoint);
+  static Uri uriDigest = Uri(scheme: apiScheme, host: apiHost, path: digestEndpoint);
 
   Uri getUriUploadImage(int id, String digest, String path, String fileName){
     Map<String, String> queryParams = {
@@ -24,8 +33,14 @@ class Environment{
       'fileName': fileName
     };
 
-    Uri uriUploadImage = Uri(scheme: apiScheme, host: apiHost, port: apiPort, path: uploadEndpoint + id.toString(), queryParameters: queryParams);
+    Uri uriUploadImage = Uri(scheme: apiScheme, host: apiHost, path: uploadEndpoint + id.toString(), queryParameters: queryParams);
     return uriUploadImage;
+  }
+
+  Uri getUriSearch(String code){
+    Uri uriSearch = Uri(scheme: apiScheme, host: apiHost, path: searchEndpoint+code);
+    print(uriSearch);
+    return uriSearch;
   }
 
 }

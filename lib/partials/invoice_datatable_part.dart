@@ -2,14 +2,19 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:intl/intl.dart';
 import 'package:memory_cache/memory_cache.dart';
+import 'package:transmission_facture_client/environment.dart';
 import 'package:transmission_facture_client/models/Image.dart';
 import 'package:transmission_facture_client/models/Invoice.dart';
+import 'package:transmission_facture_client/partials/invoice_datacell.dart';
 
 class InvoiceDataTablePart extends StatefulWidget {
   final Uri uri;
   final bool received;
-  const InvoiceDataTablePart({Key? key, required this.uri, required this.received}) : super(key: key);
+  const InvoiceDataTablePart(
+      {Key? key, required this.uri, required this.received})
+      : super(key: key);
 
   @override
   State<InvoiceDataTablePart> createState() => _DataTablePartState();
@@ -20,6 +25,7 @@ class _DataTablePartState extends State<InvoiceDataTablePart> {
   File? imageFile;
   late String imagePath;
   late String imageName;
+  String _searchResult = '';
 
   late Future<List<Invoice>> _invoices;
 
@@ -50,7 +56,7 @@ class _DataTablePartState extends State<InvoiceDataTablePart> {
   @override
   Widget build(BuildContext context) {
     TextEditingController controller = TextEditingController();
-    String _searchResult = '';
+    String hintText = "Numéro du bordereau";
 
     //DataTable headers
     List<String> cols = [
@@ -64,10 +70,10 @@ class _DataTablePartState extends State<InvoiceDataTablePart> {
       "Actions"
     ];
 
-    String cacheKey="";
-    if(!widget.received){
+    String cacheKey = "";
+    if (!widget.received) {
       cacheKey = "invoices";
-    }else{
+    } else {
       cacheKey = "received";
     }
 
@@ -85,18 +91,24 @@ class _DataTablePartState extends State<InvoiceDataTablePart> {
                         children: [
                           Card(
                             child: ListTile(
-                              leading: const Icon(Icons.search),
-                              title: TextField(
-                                  controller: controller,
-                                  decoration: const InputDecoration(
-                                      hintText: 'Numéro du bordereau',
-                                      border: InputBorder.none),
-                                  onChanged: (value) {
-                                    setState(() {
-                                      _searchResult = value;
-                                      //usersFiltered = users.where((user) => user.name.contains(_searchResult) || user.role.contains(_searchResult)).toList();
-                                    });
-                                  }),
+                              leading: IconButton(
+                                icon: const Icon(Icons.search),
+                                onPressed: () async {
+                                  _searchResult = controller.value.text;
+                                  print(_searchResult);
+                                  var data = await fetchInvoices(Environment()
+                                      .getUriSearch(_searchResult));
+                                  setState(() {
+                                    MemoryCache.instance.update(cacheKey, data);
+                                  });
+                                },
+                              ),
+                              title: TextFormField(
+                                controller: controller,
+                                decoration: const InputDecoration(
+                                    hintText: 'Numéro du bordereau',
+                                    border: InputBorder.none),
+                              ),
                               trailing: IconButton(
                                 icon: const Icon(Icons.cancel),
                                 onPressed: () {
@@ -108,6 +120,24 @@ class _DataTablePartState extends State<InvoiceDataTablePart> {
                                 },
                               ),
                             ),
+                          ),
+                          TextField(
+                            onSubmitted: (value) async {
+                              _searchResult = controller.value.text;
+                              print(_searchResult);
+                              var data = await fetchInvoices(
+                                  Environment().getUriSearch(_searchResult));
+                              setState(() {
+                                MemoryCache.instance.update(cacheKey, data);
+                              });
+                            },
+                            controller: controller,
+                            decoration: InputDecoration(
+                                hintText: hintText,
+                                prefixIcon: const Icon(Icons.search),
+                                border: const OutlineInputBorder(
+                                    borderRadius: BorderRadius.all(
+                                        Radius.circular(25.0)))),
                           ),
                           Container(
                             decoration: BoxDecoration(
@@ -122,137 +152,116 @@ class _DataTablePartState extends State<InvoiceDataTablePart> {
                                   columns: [
                                     DataColumn(
                                         label: Text(
-                                          cols[0],
-                                          style: const TextStyle(
-                                            fontWeight: FontWeight.bold,
-                                          ),
-                                        )),
+                                      cols[0],
+                                      style: const TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    )),
                                     DataColumn(
                                         label: Text(
-                                          cols[1],
-                                          style: const TextStyle(
-                                            fontWeight: FontWeight.bold,
-                                          ),
-                                        )),
+                                      cols[1],
+                                      style: const TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    )),
                                     DataColumn(
                                         label: Text(
-                                          cols[2],
-                                          style: const TextStyle(
-                                            fontWeight: FontWeight.bold,
-                                          ),
-                                        )),
+                                      cols[2],
+                                      style: const TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    )),
                                     DataColumn(
                                         label: Text(
-                                          cols[3],
-                                          style: const TextStyle(
-                                            fontWeight: FontWeight.bold,
-                                          ),
-                                        )),
+                                      cols[3],
+                                      style: const TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    )),
                                     DataColumn(
                                         label: Text(
-                                          cols[4],
-                                          style: const TextStyle(
-                                            fontWeight: FontWeight.bold,
-                                          ),
-                                        )),
+                                      cols[4],
+                                      style: const TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    )),
                                     DataColumn(
                                         label: Text(
-                                          cols[5],
-                                          style: const TextStyle(
-                                            fontWeight: FontWeight.bold,
-                                          ),
-                                        )),
+                                      cols[5],
+                                      style: const TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    )),
                                     DataColumn(
                                         label: Text(
-                                          cols[6],
-                                          style: const TextStyle(
-                                            fontWeight: FontWeight.bold,
-                                          ),
-                                        )),
+                                      cols[6],
+                                      style: const TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    )),
                                     widget.received == true
-                                        ?const DataColumn(label: Text(""))
-                                        :DataColumn(
-                                        label: Text(
-                                          cols[7],
-                                          style: const TextStyle(
-                                            fontWeight: FontWeight.bold,
-                                          ),
-                                        ))
+                                        ? const DataColumn(label: Text(""))
+                                        : DataColumn(
+                                            label: Text(
+                                            cols[7],
+                                            style: const TextStyle(
+                                              fontWeight: FontWeight.bold,
+                                            ),
+                                          ))
                                   ],
                                   rows: data
                                       .map((invoice) => DataRow(cells: [
-                                    DataCell(Container(
-                                      child: Text(
-                                        invoice.id.toString(),
-                                        style: const TextStyle(
-                                            fontWeight:
-                                            FontWeight
-                                                .bold),
-                                      ),
-                                    )),
-                                    DataCell(Container(
-                                      child: Text(
-                                        invoice.customerCode
-                                            .toString(),
-                                        style:
-                                        const TextStyle(),
-                                      ),
-                                    )),
-                                    DataCell(Container(
-                                      child: Text(
-                                        invoice.customerName
-                                            .toString(),
-                                        style:
-                                        const TextStyle(),
-                                      ),
-                                    )),
-                                    DataCell(Container(
-                                      child: Text(
-                                        invoice.date.toString(),
-                                        style:
-                                        const TextStyle(),
-                                      ),
-                                    )),
-                                    DataCell(Container(
-                                      child: Text(
-                                        invoice.amount
-                                            .toString(),
-                                        style:
-                                        const TextStyle(),
-                                      ),
-                                    )),
-                                    DataCell(Container(
-                                      width: 50,
-                                      child: Text(
-                                        invoice.invoiceCount
-                                            .toString(),
-                                        style:
-                                        const TextStyle(),
-                                      ),
-                                    )),
-                                    DataCell(Container(
-                                      child: Text(
-                                        invoice.status
-                                            .toString()
-                                            .split('.')
-                                            .last,
-                                        style:
-                                        const TextStyle(),
-                                      ),
-                                    )),
-                                    widget.received == true
-                                        ?DataCell(Container())
-                                        :DataCell(Container(
-                                        alignment:
-                                        Alignment.center,
-                                        child: ElevatedButton(
-                                          onPressed: () {
-                                            _getFromCamera();
-                                          },
-                                          child: const Icon(
-                                              Icons.camera_alt),
-                                        ))),
-                                  ]))
+                                            DataCell(
+                                              Text(
+                                                invoice.id.toString(),
+                                                style: const TextStyle(
+                                                    fontWeight:
+                                                        FontWeight.bold),
+                                              ),
+                                            ),
+                                            DataCell(
+                                              Text(
+                                                invoice.customerCode.toString(),
+                                              ),
+                                            ),
+                                            DataCell(Text(
+                                              invoice.customerName.toString(),
+                                              style: const TextStyle(),
+                                            )),
+                                            DataCell(Text(
+                                              invoice.date.toString(),
+                                              style: const TextStyle(),
+                                            )),
+                                            DataCell(Text(
+                                              invoice.amount.toString(),
+                                              style: const TextStyle(),
+                                            )),
+                                            DataCell(SizedBox(
+                                              width: 50,
+                                              child: Text(
+                                                invoice.invoiceCount.toString(),
+                                                style: const TextStyle(),
+                                              ),
+                                            )),
+                                            DataCell(Text(
+                                              invoice.status
+                                                  .toString()
+                                                  .split('.')
+                                                  .last,
+                                              style: const TextStyle(),
+                                            )),
+                                            widget.received == true
+                                                ? DataCell(Container())
+                                                : DataCell(Container(
+                                                    alignment: Alignment.center,
+                                                    child: ElevatedButton(
+                                                      onPressed: () {
+                                                        _getFromCamera();
+                                                      },
+                                                      child: const Icon(
+                                                          Icons.camera_alt),
+                                                    ))),
+                                          ]))
                                       .toList()),
                             ),
                           )
@@ -262,31 +271,30 @@ class _DataTablePartState extends State<InvoiceDataTablePart> {
                 Container(
                     child: imageFile == null
                         ? Container(
-                      alignment: Alignment.center,
-                      child: Column(
-                        mainAxisAlignment:
-                        MainAxisAlignment.center,
-                        children: <Widget>[
-                          ElevatedButton(
-                            onPressed: () {
-                              _getFromCamera();
-                            },
-                            child: Container(
-                              child: Text("PICK FROM CAMERA"),
+                            alignment: Alignment.center,
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: <Widget>[
+                                ElevatedButton(
+                                  onPressed: () {
+                                    _getFromCamera();
+                                  },
+                                  child: Container(
+                                    child: Text("PICK FROM CAMERA"),
+                                  ),
+                                )
+                              ],
                             ),
                           )
-                        ],
-                      ),
-                    )
                         : Container(
-                      child: Image.file(
-                        imageFile!,
-                        fit: BoxFit.cover,
-                      ),
-                    ))
+                            child: Image.file(
+                              imageFile!,
+                              fit: BoxFit.cover,
+                            ),
+                          ))
               ],
             ));
-      } else{
+      } else {
         return const SingleChildScrollView(
           scrollDirection: Axis.vertical,
           child: Text("Pas de données"),
@@ -298,8 +306,8 @@ class _DataTablePartState extends State<InvoiceDataTablePart> {
           builder: (ctx, snap) {
             if (snap.hasData) {
               List<Invoice>? data = snap.data;
-              MemoryCache.instance.create(cacheKey, data,
-                  expiry: const Duration(hours: 2));
+              MemoryCache.instance
+                  .create(cacheKey, data, expiry: const Duration(hours: 2));
               if (data != null) {
                 return SingleChildScrollView(
                     scrollDirection: Axis.vertical,
@@ -433,7 +441,9 @@ class _DataTablePartState extends State<InvoiceDataTablePart> {
                                                     )),
                                                     DataCell(Container(
                                                       child: Text(
-                                                        invoice.date.toString(),
+                                                        DateFormat('dd/MM/yy')
+                                                            .format(
+                                                                invoice.date),
                                                         style:
                                                             const TextStyle(),
                                                       ),

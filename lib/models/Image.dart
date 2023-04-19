@@ -17,7 +17,7 @@ class Picture {
   }
 }
 
-Future<http.Response> sendPicture(Picture image) async{
+/*Future<http.Response> sendPicture(Picture image) async{
   Uri uri = Environment.uriUploadImage;
 
   final response = await http.post(
@@ -32,7 +32,7 @@ Future<http.Response> sendPicture(Picture image) async{
   );
 
   return response;
-}
+}*/
 
 void uploadPicture(XFile imageFile, {int? invoiceID = 2}) async {
   String digest = await getDigest();

@@ -1,7 +1,6 @@
 import 'dart:convert';
 import 'dart:io';
 import 'package:http/http.dart' as http;
-import 'package:transmission_facture_client/environment.dart';
 
 class Invoice {
   final int id;
@@ -31,12 +30,10 @@ enum Status { Oui, Non }
 
 Future<List<Invoice>> fetchInvoices(uri) async {
   final response = await http.get(uri);
-
   if (response.statusCode == 200) {
     var parsed = json.decode(response.body);
     List jsonResponse = parsed["results"] as List;
     String next = parsed["__next"];
-    print(next);
 
     return jsonResponse.map((job) => Invoice.fromJson(job)).toList();
   } else {
