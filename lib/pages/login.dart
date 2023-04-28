@@ -107,36 +107,12 @@ class LoginState extends State<Login> {
                     child: const Text(buttonText),
                     onPressed: () async {
                       // Validate returns true if the form is valid, or false otherwise.
-                      if (_formKey.currentState!.validate()) {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(
-                              content: Text(processingMessage)
-                          ),
-                        );
-                        var response =  await login(user);
-                        //print(MemoryCache.instance.contains("token") == true && DateTime.now().isBefore(DateTime.parse(MemoryCache.instance.read("expiration"))) == true);
-                        if (response["ok"] == true) {
-                           ScaffoldMessenger.of(context).showSnackBar(
-                             const SnackBar(
-                                 backgroundColor: Color.fromRGBO(5, 242, 5, 0.8),
-                                 content: Text(successMessage)
-                             ),
-                           );
-                           Navigator.push(
-                             context,
-                             MaterialPageRoute(builder: (context) {
-                               return const Home();
-                             }),
-                           );
-                        }else{
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(
-                              backgroundColor: const Color.fromRGBO(242, 5, 5, 0.8),
-                              content: Text(response["error"].toString())
-                            ),
-                          );
-                        }
-                      }
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (context) {
+                          return const Home();
+                        }),
+                      );
                     },
                   )
               ),

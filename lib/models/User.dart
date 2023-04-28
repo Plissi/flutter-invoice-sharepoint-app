@@ -18,8 +18,6 @@ class User {
 
 Future<Map<String, Object?>> login(User user) async{
   Uri uri = Environment.uriLogin;
-print(uri);
-print(user);
   try{
     final response = await http.post(
       uri,
@@ -30,7 +28,7 @@ print(user);
         'username': user.username,
         'password': user.password
       }),
-    ).timeout(const Duration(seconds: 90));
+    );
 
     if (response.statusCode == 200) {
       var parsed = json.decode(response.body);
@@ -47,10 +45,15 @@ print(user);
         'error': "Nom d'utilisateur et/ou mot de passe incorrect"
       };
     }
-  } on TimeoutException catch(e){
+  } /*on TimeoutException catch(e){
     return {
       'ok' : false,
       'error': e.message
+    };
+  }*/ catch (err){
+    return {
+      'ok' : false,
+      'error': err.toString()
     };
   }
 

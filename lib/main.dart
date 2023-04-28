@@ -31,7 +31,7 @@ class MyApp extends StatelessWidget {
         body: Center(
           child: Padding(
             padding: const EdgeInsets.all(16.0),
-            child:(MemoryCache.instance.contains("token") == true && DateTime.now().isBefore(DateTime.parse(MemoryCache.instance.read("expiration"))) == true)
+            child:(MemoryCache.instance.contains("token") && DateTime.now().isBefore(DateTime.parse(MemoryCache.instance.read("expiration"))))
                 ?const Home()
                 :const Login()
           ),

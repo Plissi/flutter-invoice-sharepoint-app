@@ -11,6 +11,7 @@ class Environment{
   static String get uploadEndpoint => dotenv.get('API_ENDPOINT_UPLOAD_IMAGE', fallback: '/api');
   static String get digestEndpoint => dotenv.get('API_ENDPOINT_DIGEST', fallback: '/api');
   static String get searchEndpoint => dotenv.get('API_ENDPOINT_SEARCH', fallback: '/api');
+  static String get searchEndpointById => dotenv.get('API_ENDPOINT_SEARCH2', fallback: '/api');
 
   /*
   //Local
@@ -27,20 +28,15 @@ class Environment{
   static Uri uriDigest = Uri(scheme: apiScheme, host: apiHost, path: digestEndpoint);
 
   Uri getUriUploadImage(int id, String digest, String path, String fileName){
-    Map<String, String> queryParams = {
+    return Uri(scheme: apiScheme, host: apiHost, path: uploadEndpoint + id.toString(), queryParameters: {
       'digest': digest,
       'filePath': path,
       'fileName': fileName
-    };
-
-    Uri uriUploadImage = Uri(scheme: apiScheme, host: apiHost, path: uploadEndpoint + id.toString(), queryParameters: queryParams);
-    return uriUploadImage;
+    });
   }
 
   Uri getUriSearch(String code){
-    Uri uriSearch = Uri(scheme: apiScheme, host: apiHost, path: searchEndpoint+code);
-    print(uriSearch);
-    return uriSearch;
+    return Uri(scheme: apiScheme, host: apiHost, path: searchEndpoint + "/" + code);
   }
 
 }

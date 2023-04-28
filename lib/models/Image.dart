@@ -34,7 +34,7 @@ class Picture {
   return response;
 }*/
 
-void uploadPicture(XFile imageFile, {int? invoiceID = 2}) async {
+void uploadPicture(XFile imageFile, int invoiceID) async {
   String digest = await getDigest();
 
   var stream = http.ByteStream(imageFile.openRead());
@@ -54,7 +54,6 @@ void uploadPicture(XFile imageFile, {int? invoiceID = 2}) async {
 
   request.files.add(multipartFile);
   var response = await request.send();
-  print(response.statusCode);
   response.stream.transform(utf8.decoder).listen((value) {
     print(value);
   });
@@ -69,8 +68,7 @@ Future<String> getDigest() async {
     var parsed = json.decode(response.body);
     return parsed;
   } else {
-    print('Error, Could not load Data.');
     print(response.statusCode);
-    throw Exception('Failed to load Data');
+    throw Exception('Failed to get Data');
   }
 }

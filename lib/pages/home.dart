@@ -11,8 +11,8 @@ class Home extends StatelessWidget {
   Widget build(BuildContext context) {
     const appTitle = "Decharge App";
 
-    String title1 = 'Décharges en cours';
-    String title2 = 'Décharges effectuées';
+    String title1 = 'En cours';
+    String title2 = 'Déchargées';
 
     return MaterialApp(
       theme: ThemeData(
@@ -21,12 +21,6 @@ class Home extends StatelessWidget {
       home: Scaffold(
           appBar: AppBar(
             title: const Text(appTitle),
-            leading: IconButton(
-              onPressed: () {
-                Navigator.pop(context);
-              },
-              icon: const Icon(Icons.arrow_back),
-            ),
           ),
           body: DefaultTabController(
             length: 2,
@@ -42,7 +36,7 @@ class Home extends StatelessWidget {
                             child: Text(
                               title1,
                               style: const TextStyle(
-                                  fontWeight: FontWeight.bold, fontSize: 32),
+                                  fontWeight: FontWeight.bold, fontSize: 20),
                             ),
                           )),
                           Tab(
@@ -50,7 +44,7 @@ class Home extends StatelessWidget {
                             child: Text(
                               title2,
                               style: const TextStyle(
-                                  fontWeight: FontWeight.bold, fontSize: 32),
+                                  fontWeight: FontWeight.bold, fontSize: 20),
                             ),
                           )),
                         ],
@@ -64,13 +58,4 @@ class Home extends StatelessWidget {
           )),
     );
   }
-}
-
-List<Invoice> getInvoiceData() {
-  return [
-    Invoice(1, "112113", "RAZEL CAMEROUN", DateTime(2023, 11, 23), 1100000, 4,
-        Status.Oui),
-    Invoice(2, "112113", "RAZEL CAMEROUN", DateTime(2023, 11, 23), 11000000, 12,
-        Status.Non),
-  ];
 }
