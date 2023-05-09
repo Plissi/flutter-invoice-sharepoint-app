@@ -39,4 +39,8 @@ class Environment{
     return Uri(scheme: apiScheme, host: apiHost, path: searchEndpoint + "/" + code);
   }
 
+  Uri getUriSearchForId(String id){
+    return Uri(scheme: apiScheme, host: apiHost, path: searchEndpointById + "/" + id);
+  }
+
 }

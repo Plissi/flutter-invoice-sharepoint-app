@@ -5,6 +5,7 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:memory_cache/memory_cache.dart';
 import 'package:transmission_facture_client/pages/home.dart';
 import 'package:transmission_facture_client/pages/login.dart';
+import 'package:transmission_facture_client/pages/mainScreen.dart';
 
 Future<void> main() async {
   await dotenv.load();
@@ -18,26 +19,15 @@ class MyApp extends StatelessWidget {
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
-    const appTitle = "Decharge App";
-    return MaterialApp(
-      title: appTitle,
-      theme: ThemeData(
-        primarySwatch: Colors.indigo,
-      ),
-      home: Scaffold(
-        appBar: AppBar(
-          title: const Text(appTitle),
-        ),
-        body: Center(
-          child: Padding(
-            padding: const EdgeInsets.all(16.0),
-            child:(MemoryCache.instance.contains("token") && DateTime.now().isBefore(DateTime.parse(MemoryCache.instance.read("expiration"))))
-                ?const Home()
-                :const Login()
-          ),
-        ),
-      ),
-    );
+    var _isTokenPresentAndValid = MemoryCache.instance.contains("token") &&
+        DateTime.now()
+            .isBefore(DateTime.parse(MemoryCache.instance.read("expiration")));
+
+    if (_isTokenPresentAndValid) {
+      return const Home(child: MainScreen());
+    } else {
+      return const Home(child: Login());
+    }
   }
 }
 

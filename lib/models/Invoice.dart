@@ -28,21 +28,7 @@ class Invoice {
 }
 
 enum Status { Oui, Non }
-
-Future<List<Invoice>> fetchInvoices(uri) async {
-  final response = await http.get(uri);
-  if (response.statusCode == 200) {
-    var parsed = json.decode(response.body);
-    List jsonResponse = parsed["d"]["results"] as List;
-    String next = parsed["d"]["__next"];
-    MemoryCache.instance
-        .create("next", next, expiry: const Duration(hours: 2));
-    return jsonResponse.map((job) => Invoice.fromJson(job)).toList();
-  } else {
-    print('Error, Could not load Data.');
-    throw Exception('Failed to load Data');
-  }
-}
+String errorMessage = "Impossible de charger les bodereaux";
 
 Future<Result> fetchResult(Uri uri, [String? next]) async {
   if(next != null) {
@@ -50,12 +36,20 @@ Future<Result> fetchResult(Uri uri, [String? next]) async {
   }
 
   try{
-    final response = await http.get(uri, headers: {"Accept": "application/json;odata=verbose"});
+    http.Response response;
+    //print(uri);
+    if(MemoryCache.instance.contains("token")){
+      response = await http.get(uri, headers: <String, String>{
+        "Accept": "application/json;odata=verbose",
+        'Authorization': 'Bearer ' + MemoryCache.instance.read("token")
+      });
+    } else {
+      response = await http.get(uri, headers: {"Accept": "application/json;odata=verbose"});
+    }
     var parsed = json.decode(response.body);
     return Result.fromJson(parsed["d"]);
   } catch (err) {
-    print(err);
-    throw Exception('Failed to load Data');
+    throw Exception(errorMessage);
   }
 }
 
@@ -66,7 +60,13 @@ class Result{
   Result(this.next, this.invoices);
 
   factory Result.fromJson(Map<String, dynamic> parsedJson){
-    List response = parsedJson['results'] as List;
+    List response = [];
+
+    if(parsedJson['results']!= null){
+      response = parsedJson['results'] as List;
+    }else{
+      response.add(parsedJson);
+    }
     List<Invoice> list = response.map((json) => Invoice.fromJson(json)).toList();
     return Result(
         parsedJson['__next'],

@@ -21,65 +21,38 @@ class InvoiceDataTablePart extends StatefulWidget {
 
 class _DataTablePartState extends State<InvoiceDataTablePart> {
   /// Variables
-  File? imageFile;
-  late String imagePath;
-  late String imageName;
 
-  String _searchResult = '';
-  late Uri searchUri;
-  late Uri fetchUri;
-  String next = "";
+  String _searchStatement = '';
+  late Uri _searchUri;
+  late Uri _fetchUri;
+  String _next = "";
 
-  String cacheKey = "";
+  String _cacheKey = "";
 
-  List<Invoice> invoices = [];
+  List<Invoice> _invoices = [];
 
   final _scrollController = ScrollController();
-  TextEditingController textController = TextEditingController();
+  final TextEditingController _textController = TextEditingController();
 
-  bool isLoading = false;
+  bool _isLoading = false;
 
   @override
   void initState() {
     super.initState();
     setState(() {
-      fetchUri = widget.uri;
+      _fetchUri = widget.uri;
 
       if (!widget.received) {
-        cacheKey = "invoices";
+        _cacheKey = "invoices";
       } else {
-        cacheKey = "received";
+        _cacheKey = "received";
       }
     });
 
-    if(!MemoryCache.instance.contains(cacheKey)) {
-      fetchResult(fetchUri).then((value) => {
-            setState(() {
-              invoices.addAll(value.invoices);
-              MemoryCache.instance
-                  .create(cacheKey, invoices, expiry: const Duration(hours: 2));
-              next = value.next;
-            }),
-          });
-    } else {
-      invoices.addAll(MemoryCache.instance.read(cacheKey) as List<Invoice>);
-    }
+    _load();
 
     _scrollController.addListener(() {
-      if (_scrollController.position.pixels == _scrollController.position.maxScrollExtent) {
-        setState(() {
-          isLoading = true;
-        });
-
-        fetchResult(fetchUri, next).then((value) => {
-          setState((){
-            isLoading = false;
-            invoices.addAll(value.invoices);
-            MemoryCache.instance.update(cacheKey, invoices, expiry: const Duration(hours: 2));
-            next = value.next;
-          }),
-        });
-      }
+      _loadMore();
     });
 
     super.initState();
@@ -88,72 +61,72 @@ class _DataTablePartState extends State<InvoiceDataTablePart> {
   @override
   void dispose() {
     _scrollController.dispose();
-    textController.dispose();
+    _textController.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    if (invoices.isNotEmpty){
-      return SingleChildScrollView(
-          scrollDirection: Axis.vertical,
-          controller: _scrollController,
-          child: Column(
-            children: [
-              Padding(
-                  padding: const EdgeInsets.all(10),
-                  child: Center(
-                    child: Column(
-                      children: [
-                        const SizedBox(height: 5),
-                        getSearchBar(),
-                        const SizedBox(height: 10),
-                        invoices.isNotEmpty?Container(
-                          decoration: BoxDecoration(
-                            color: Colors.grey[200],
-                            borderRadius: const BorderRadius.all(
-                              Radius.circular(12.0),
-                            ),
-                          ),
-                          child: createDatatable(invoices),
-                        ):loading(),
-                        (isLoading && invoices.isNotEmpty)?loading():const Text("")
-                      ],
-                    ),
-                  )),
-            ],
+    if (_invoices.isNotEmpty){
+      return RefreshIndicator(
+          onRefresh: _refresh,
+          child: SingleChildScrollView(
+              scrollDirection: Axis.vertical,
+              controller: _scrollController,
+              child: Column(
+                children: [
+                  Padding(
+                      padding: const EdgeInsets.all(10),
+                      child: Center(
+                        child: Column(
+                          children: [
+                            const SizedBox(height: 5),
+                            getSearchBar(),
+                            const SizedBox(height: 10),
+                            _invoices.isNotEmpty?Container(
+                              decoration: BoxDecoration(
+                                color: Colors.grey[200],
+                                borderRadius: const BorderRadius.all(
+                                  Radius.circular(12.0),
+                                ),
+                              ),
+                              child: createDatatable(_invoices),
+                            ):loading(),
+                            (_isLoading && _invoices.isNotEmpty)?loading():const Text("")
+                          ],
+                        ),
+                      )),
+                ],
+              )
           )
       );
     }
     return loading();
-    /*
+  }
 
-        Container(
-            child: imageFile == null
-                ? Container(
-              alignment: Alignment.center,
-              child: Column(
-                mainAxisAlignment:
-                MainAxisAlignment.center,
-                children: <Widget>[
-                  ElevatedButton(
-                    onPressed: () {
-                      _getFromCamera();
-                    },
-                    child: Container(
-                      child: Text("PICK FROM CAMERA"),
-                    ),
-                  )
-                ],
-              ),
-            )
-                : Container(
-              child: Image.file(
-                imageFile!,
-                fit: BoxFit.cover,
-              ),
-            ))
-     */
+  Future<void> _refresh() async{
+    MemoryCache.instance.delete(_cacheKey);
+    _invoices = [];
+    setState(() {
+      _isLoading = true;
+    });
+    _load();
+  }
+
+  void _load(){
+    if(!MemoryCache.instance.contains(_cacheKey)) {
+      fetchResult(_fetchUri).then((value) => {
+        setState(() {
+          _invoices.addAll(value.invoices);
+          MemoryCache.instance
+              .create(_cacheKey, _invoices, expiry: const Duration(hours: 2));
+          _next = value.next;
+          _isLoading =  false;
+        }),
+      });
+    } else {
+      _invoices.addAll(MemoryCache.instance.read(_cacheKey) as List<Invoice>);
+    }
   }
 
   /// Get from Camera
@@ -165,13 +138,8 @@ class _DataTablePartState extends State<InvoiceDataTablePart> {
     );
     if (pickedFile != null) {
       setState(() {
-        imagePath = pickedFile.path;
-        imageFile = File(imagePath);
         uploadPicture(pickedFile, id);
-        var path = pickedFile.path.split('/');
-        var imageNameIndex = path.length - 1;
-
-        imageName = path[imageNameIndex];
+        _updateInvoices();
       });
     }
   }
@@ -227,7 +195,7 @@ class _DataTablePartState extends State<InvoiceDataTablePart> {
             createDataColumn(cols[4]),
             createDataColumn(cols[5]),
             createDataColumn(cols[6]),
-            (cacheKey == "invoices")?createDataColumn(cols[7]):createDataColumn(""),
+            (_cacheKey == "invoices")?createDataColumn(cols[7]):createDataColumn(""),
           ],
           rows: data.map((invoice) =>
               createRow(invoice))
@@ -258,7 +226,7 @@ class _DataTablePartState extends State<InvoiceDataTablePart> {
       createDataCell(
           invoice.status.toString().split('.').last
       ),
-      (cacheKey == "invoices")
+      (_cacheKey == "invoices")
           ?DataCell(
           Container(
               alignment: Alignment.center,
@@ -266,6 +234,7 @@ class _DataTablePartState extends State<InvoiceDataTablePart> {
                 icon: const Icon(Icons.camera_alt),
                 onPressed: () {
                   _getFromCamera(invoice.id);
+                  _updateInvoices();
                 },
               )
           )
@@ -288,20 +257,20 @@ class _DataTablePartState extends State<InvoiceDataTablePart> {
   }
 
   Widget getSearchBar(){
-    String hintText = "Code Client";
+    String hintText = "Numéro de bordereau";
 
     return TextField(
       onSubmitted: (value) {
         //print(value);
-        performResearch(value);
+        _performResearch(value);
       },
-      controller: textController,
+      controller: _textController,
       decoration: InputDecoration(
         hintText: hintText,
         prefixIcon: IconButton(
           icon: const Icon(Icons.search),
           onPressed: () {
-            performResearch(textController.value.text);
+            _performResearch(_textController.value.text);
           },
         ),
         border: const OutlineInputBorder(
@@ -311,37 +280,57 @@ class _DataTablePartState extends State<InvoiceDataTablePart> {
           icon: const Icon(Icons.cancel),
           onPressed: () {
             setState(() {
-              textController.clear();
-              _searchResult = '';
+              _textController.clear();
+              _searchStatement = '';
               //usersFiltered = users;
             });
-            performResearch(textController.value.text);
+            _performResearch(_textController.value.text);
           },
         ),
       ),
     );
   }
 
-  void performResearch(value){
-    _searchResult = value;
+  void _performResearch(value){
+    _searchStatement = value;
     
-    if(_searchResult.isEmpty){
-      searchUri = fetchUri;
+    _updateInvoices();
+  }
+  
+  void _updateInvoices(){
+    if(_searchStatement.isEmpty){
+      _searchUri = _fetchUri;
     } else {
-      searchUri = Environment().getUriSearch(_searchResult);
+      _searchUri = Environment().getUriSearchForId(_searchStatement);
     }
 
     setState(() {
-      isLoading = true;
-      invoices = [];
-      fetchResult(searchUri).then((value) => {
+      _isLoading = true;
+      _invoices = [];
+      fetchResult(_searchUri).then((value) => {
         setState((){
-          invoices.addAll(value.invoices);
-          isLoading = false;
+          _invoices.addAll(value.invoices);
+          _isLoading = false;
         }),
-        MemoryCache.instance.update(cacheKey, invoices)
+        MemoryCache.instance.update(_cacheKey, _invoices, expiry: const Duration(hours: 2))
       });
-      //print(searchUri);
     });
+  }
+
+  void _loadMore(){
+    if (_scrollController.position.pixels == _scrollController.position.maxScrollExtent) {
+      setState(() {
+        _isLoading = true;
+      });
+
+      fetchResult(_fetchUri, _next).then((value) => {
+        setState((){
+          _isLoading = false;
+          _invoices.addAll(value.invoices);
+          MemoryCache.instance.update(_cacheKey, _invoices, expiry: const Duration(hours: 2));
+          _next = value.next;
+        }),
+      });
+    }
   }
 }
