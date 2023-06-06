@@ -4,6 +4,7 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:memory_cache/memory_cache.dart';
 import 'package:transmission_facture_client/environment.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class User {
   String username;
@@ -30,12 +31,13 @@ Future<Map<String, Object?>> login(User user) async{
       }),
     );
 
+    final prefs = await SharedPreferences.getInstance();
+
     if (response.statusCode == 200) {
       var parsed = json.decode(response.body);
-      MemoryCache.instance.create(
-          "token", parsed["token"]);
-      MemoryCache.instance.create(
-          "expiration", parsed["expiration"]);
+      prefs.setString("token", parsed["token"]);
+      prefs.setString("expiration", parsed["expiration"]);
+
       return {
         'ok' : true
       };

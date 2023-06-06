@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:transmission_facture_client/constants/colors.dart';
 import 'package:transmission_facture_client/models/User.dart';
 import 'package:transmission_facture_client/pages/home.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import 'mainScreen.dart';
 
@@ -171,9 +172,9 @@ class LoginState extends State<Login> {
       setState(() {
         _isLoggingIn = false;
       });
-      //print(MemoryCache.instance.contains("token") == true && DateTime.now().isBefore(DateTime.parse(MemoryCache.instance.read("expiration"))) == true);
+
       if (response["ok"] == true) {
-        Navigator.push(
+        Navigator.pushReplacement(
           context,
           MaterialPageRoute(builder: (context) {
             return const Home(child: MainScreen());

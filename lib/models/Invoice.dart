@@ -1,7 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
 import 'package:http/http.dart' as http;
-import 'package:memory_cache/memory_cache.dart';
+import 'package:transmission_facture_client/main.dart';
 
 class Invoice {
   final int id;
@@ -14,6 +14,18 @@ class Invoice {
 
   Invoice(this.id, this.customerCode, this.customerName, this.date, this.amount,
       this.invoiceCount, this.status);
+
+  Map<String, dynamic> toJson(){
+    return {
+      'Id' : id,
+      'CodeClient' : customerCode,
+      'NomClient' : customerName,
+      'DateEditionBordereau' : date,
+      'Montant' : amount,
+      'NombreDeFactures' : invoiceCount,
+      'Decharge' : status
+    };
+  }
 
   factory Invoice.fromJson(Map<dynamic, dynamic> json) {
     return Invoice(
@@ -31,17 +43,19 @@ enum Status { Oui, Non }
 String errorMessage = "Impossible de charger les bodereaux";
 
 Future<Result> fetchResult(Uri uri, [String? next]) async {
+  var token = sharedPreferences.getString("token");
+
   if(next != null) {
     uri = uri.replace(queryParameters: {'url': next});
   }
 
   try{
     http.Response response;
-    //print(uri);
-    if(MemoryCache.instance.contains("token")){
+    //print(token);
+    if(token != null){
       response = await http.get(uri, headers: <String, String>{
         "Accept": "application/json;odata=verbose",
-        'Authorization': 'Bearer ' + MemoryCache.instance.read("token")
+        'Authorization': 'Bearer ' + token
       });
     } else {
       response = await http.get(uri, headers: {"Accept": "application/json;odata=verbose"});
@@ -49,7 +63,10 @@ Future<Result> fetchResult(Uri uri, [String? next]) async {
     var parsed = json.decode(response.body);
     return Result.fromJson(parsed["d"]);
   } catch (err) {
-    throw Exception(errorMessage);
+    throw Exception({
+      "message": errorMessage,
+      "erreur": err
+    });
   }
 }
 
